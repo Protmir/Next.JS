@@ -1,7 +1,12 @@
 import Router from 'next/router'
 import {MainLayout} from '../../components/MainLayout';
+import {MyPost} from '../../interfaces/post';
 
-export default function About({ title }) {
+interface AboutPageProps {
+    titlePage: MyPost
+}
+
+export default function About({ titlePage }: AboutPageProps) {
 
     const linkClickHandler = () => {
         Router.push('/')
@@ -9,7 +14,7 @@ export default function About({ title }) {
 
     return (
         <MainLayout title={'About Page'}>
-            <h1>{title}</h1>
+            <h1>{titlePage.title}</h1>
 
             <button onClick={linkClickHandler}>Go back to home</button>
             <button onClick={() => Router.push('/posts')}>Go to posts</button>
