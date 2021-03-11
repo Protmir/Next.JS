@@ -1,36 +1,46 @@
+import {useState, useEffect} from 'react'
 import {useRouter} from 'next/router';
 import {MainLayout} from '../../components/MainLayout';
+import Link from 'next/link';
 
 
-export default function Post({ post }) {
+export default function Post({ post: serverPost }) {
     const router = useRouter()
-    // console.log(router.query.id)
-    // async function getInitialProps() {
-    //     const response = await fetch(`http://localhost:4200/posts/${router.query.id}`)
-    //     const post = await response.json()
-    //     console.log(post)
-    //
-    //     return {
-    //         post
-    //     }
-    // }
+    const [post, setPosts] = useState(serverPost)
 
+    useEffect(() => {
+        async function load() {
+            const response = await fetch(`http://localhost:4200/posts/${router.query.id}`)
+            const data = await response.json()
+            setPosts(data)
+        }
+
+        if(!serverPost) {
+            load()
+        }
+    }, [])
+
+    if (!post) {
+        return <MainLayout>
+            <p>Loading...</p>
+        </MainLayout>
+    }
 
     return (
     <MainLayout>
-        {post.map(post => (
-            <div key={post.id}>
-                <h1>{post.title}</h1>
-                <p>{post.body}</p>
-            </div>
-        ))}
+        <h1>{post.title}</h1>
+        <hr />
+        <p>{post.body}</p>
+        <Link href={'/posts'}><a>Back to all posts</a></Link>
     </MainLayout>
     )
 }
 
-Post.getInitialProps = async (pathname) => {
-    console.log(pathname)
-    const response = await fetch(`http://localhost:4200/posts`)
+Post.getInitialProps = async ({ query, req }) => {
+    if (!req) {
+        return {post: null}
+    }
+    const response = await fetch(`http://localhost:4200/posts/${query.id}`)
     const post = await response.json()
 
     return {
